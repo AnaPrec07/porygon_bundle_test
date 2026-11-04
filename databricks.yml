@@ -28,14 +28,14 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-5f03d541-c821.cloud.databricks.com
+      host: https://dbc-dbc-7350f2a1-4fb7.cloud.databricks.com
     variables:
       catalog: bundle_test
       schema: ${workspace.current_user.short_name}
   prod:
     mode: production
     workspace:
-      host: https://dbc-5f03d541-c821.cloud.databricks.com
+      host: https://dbc-dbc-7350f2a1-4fb7.cloud.databricks.com
       # We explicitly deploy to /Workspace/Users/anamargaritapreciado@gmail.com to make sure we only have a single copy.
       root_path: /Workspace/Users/anamargaritapreciado@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
