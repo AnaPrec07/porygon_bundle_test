@@ -19,6 +19,8 @@ dev = [
     "databricks-connect~=18.0.0",
     "ipykernel",
 ]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [project.scripts]
 main = "porygon_bundle_test.main:main"
