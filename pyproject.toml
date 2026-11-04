@@ -19,6 +19,8 @@ dev = [
     "databricks-connect~=18.0.0",
     "ipykernel",
 ]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
 
 [project.scripts]
 main = "porygon_bundle_test.main:main"
@@ -29,9 +31,11 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 120
+builtins = ["spark", "dbutils", "display"]
 
 [tool.databricks.environment]
 environment_version = "5"
+
 
 # managed by databricks environments setup-local — do not edit
 [tool.uv]
