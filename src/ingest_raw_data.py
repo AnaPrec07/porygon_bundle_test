@@ -27,6 +27,8 @@ dlt.create_sink(
 )
 
 
+@dlt.expect("no rescued data", "_rescued_data IS NULL")
+@dlt.expect("no corrupt records", "_corrupt_record IS NULL")
 @dlt.append_flow(
     name="landing_to_bronze",
     target="bronze_events_sink",
@@ -37,7 +39,14 @@ def landing_to_bronze():
         spark.readStream.format("cloudFiles")
         .option("cloudFiles.format", "csv")  # Change to json, parquet, etc. depending on source
         .option("cloudFiles.schemaLocation", f"{landing_zone_path}/_schemas")
+        .option("cloudFiles.useManagedFileEvents", "true")
         .option("cloudFiles.inferColumnTypes", "true")  # Automatically infer types
+        .option(
+            "cloudFiles.schemaHints",
+            "cuenta STRING, tarjeta STRING, fecha_transaccion DATE, fecha_proceso DATE, "
+            "descripcion STRING, referencia STRING, categoria STRING, cargos_db DECIMAL(18,2)",
+        )
+        .option("cloudFiles.cleanSource", "delete")
         .load(landing_zone_path)
     )
     # Delta rejects spaces, parentheses, etc. in column names, so normalize them
