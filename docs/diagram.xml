@@ -1,0 +1,58 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Auto Loader S3 to Delta" id="autoloader-s3-delta">
+    <mxGraphModel dx="1126" dy="689" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;align=left;verticalAlign=middle;fontSize=18;fontStyle=1;" value="Databricks Auto Loader: S3 Landing Bucket to S3 Delta Table" vertex="1">
+          <mxGeometry height="30" width="700" x="20" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="aws" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=default;strokeColor=#232F3E;strokeWidth=2;dashed=1;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=13;" value="AWS Cloud" vertex="1">
+          <mxGeometry height="610" width="1040" x="20" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="dbx" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF5F3;strokeColor=#FF3621;strokeWidth=2;verticalAlign=top;align=left;spacingLeft=10;fontStyle=1;fontSize=13;" value="Databricks Workspace (compute in AWS)" vertex="1">
+          <mxGeometry height="390" width="560" x="250" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="s3src" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F3E0;strokeColor=#3F8624;strokeWidth=2;fontSize=11;" value="&lt;b&gt;S3 Source Bucket&lt;/b&gt;&lt;br&gt;s3://landing-bucket/&lt;br&gt;(Parquet files)" vertex="1">
+          <mxGeometry height="80" width="150" x="50" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="sp" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE6CC;strokeColor=#D79B00;fontSize=11;" value="&lt;b&gt;Service Principal&lt;/b&gt;&lt;br&gt;OAuth M2M, runs the job" vertex="1">
+          <mxGeometry height="60" width="200" x="280" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="uc" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=11;" value="&lt;b&gt;Unity Catalog&lt;/b&gt;&lt;br&gt;Storage Credential +&lt;br&gt;External Location" vertex="1">
+          <mxGeometry height="60" width="230" x="550" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="al" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#FF3621;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Auto Loader&lt;/b&gt;" vertex="1">
+          <mxGeometry height="120" width="200" x="280" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="wr" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#FF3621;strokeWidth=2;fontSize=11;" value="&lt;b&gt;Delta Writer&lt;/b&gt;" vertex="1">
+          <mxGeometry height="120" width="230" x="550" y="260" as="geometry" />
+        </mxCell>
+        <mxCell id="s3delta" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F3E0;strokeColor=#3F8624;strokeWidth=2;fontSize=11;" value="&lt;b&gt;S3 Delta Table (Bronze)&lt;/b&gt;&lt;br&gt;s3://bronze/&lt;br&gt;Parquet + _delta_log" vertex="1">
+          <mxGeometry height="80" width="170" x="870" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="s3chk" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F3E0;strokeColor=#3F8624;fontSize=11;" value="&lt;b&gt;S3 Checkpoint &amp;amp; Schema Location&lt;/b&gt;&lt;br&gt;_checkpoints/ , _schemas/&lt;br&gt;Tracks processed files" vertex="1">
+          <mxGeometry height="70" width="170" x="870" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="s3src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=11;" target="al" value="1. new files land">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="al" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=11;" target="wr" value="2.batched">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="wr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2;fontSize=11;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="s3delta" value="3. append">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="wr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;fontSize=10;exitX=1;exitY=0.85;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="s3chk" value="offsets / schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="sp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="uc" value="authenticates">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="sp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;fontSize=11;" target="al" value="runs as">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
