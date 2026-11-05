@@ -40,6 +40,7 @@ targets:
     variables:
       catalog: bundle_test
       schema: ${workspace.current_user.short_name}
+      bronze_path: s3://porygon-bronze/dev
   prod:
     mode: production
     workspace:
@@ -49,6 +50,7 @@ targets:
     variables:
       catalog: bundle_test
       schema: prod
+      bronze_path: s3://porygon-bronze/prod
     permissions:
       - user_name: anamargaritapreciado@gmail.com
         level: CAN_MANAGE

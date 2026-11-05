@@ -1,0 +1,14 @@
+resources:
+  schemas:
+    bronze_schema:
+      catalog_name: ${var.catalog}
+      name: ${var.schema}
+      storage_root: ${var.bronze_path}   # managed location: tables in this schema are stored here
+
+  volumes:
+    landing_zone:
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.bronze_schema.name}   # also makes the schema deploy first
+      name: landing_zone
+      volume_type: EXTERNAL
+      storage_location: ${var.landing_zone}

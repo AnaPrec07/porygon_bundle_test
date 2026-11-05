@@ -1,15 +1,17 @@
 import dlt
 from pyspark.sql.functions import current_timestamp
 
-# Paths passed from the bundle variables at runtime
-landing_zone_path = spark.conf.get("bundle.landing_zone").rstrip("/")
-bronze_path = spark.conf.get("bundle.bronze_path").rstrip("/")
+# Values passed from the bundle at runtime
+landing_zone_path = spark.conf.get("bundle.landing_zone").rstrip("/")  # UC external volume
+catalog = spark.conf.get("bundle.catalog")
+schema = spark.conf.get("bundle.schema")
 
-# Sink: writes the stream as a Delta table at an external S3 path
+# Sink: writes the stream to a Unity Catalog table. Its files are stored in the
+# schema's managed location (the S3 bronze path).
 dlt.create_sink(
     name="bronze_events_sink",
     format="delta",
-    options={"path": bronze_path},
+    options={"tableName": f"{catalog}.{schema}.bronze_events"},
 )
 
 
