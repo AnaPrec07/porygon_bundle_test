@@ -1,0 +1,9 @@
+resources:
+  external_locations:
+    shared_exports:
+      # One location per target (dev/ and prod/ prefixes) so they never overlap.
+      name: porygon_shared_exports_${bundle.target}
+      url: ${var.export_path}
+      credential_name: databricks-uc-landing-zone
+      enable_file_events: false
+      comment: Shared exports bucket (${bundle.target})

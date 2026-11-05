@@ -1,0 +1,37 @@
+# Runs the Auto Loader pipeline whenever files land in the landing zone,
+# then exports the newly ingested bronze_events rows to the shared S3 bucket.
+
+resources:
+  jobs:
+    bronze_export_job:
+      name: bronze-export-job
+
+      trigger:
+        # Watch the landing zone (NOT the bronze path: the pipeline writes there,
+        # so triggering on it would loop).
+        file_arrival:
+          url: ${var.landing_zone}
+
+      tasks:
+        - task_key: ingest
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.autoloader_ingestion_pipeline.id}
+
+        - task_key: export_to_shared
+          depends_on:
+            - task_key: ingest
+          environment_key: default
+          spark_python_task:
+            python_file: ../src/export_bronze.py
+            parameters:
+              - "--catalog"
+              - "${var.catalog}"
+              - "--schema"
+              - "${resources.schemas.bronze_schema.name}"
+              - "--export-path"
+              - "${var.export_path}"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
