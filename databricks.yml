@@ -16,8 +16,16 @@ artifacts:
 variables:
   catalog:
     description: The catalog to use
+    default: "bundle_test"
   schema:
     description: The schema to use
+    default: "default"
+  landing_zone:
+    description: "Cloud storage landing zone URI containing raw files"
+    default: "s3://porygon-landing-zone/"
+  bronze_path:
+    description: "S3 path where the bronze Delta table is written"
+    default: "s3://porygon-bronze/"
 
 targets:
   dev:

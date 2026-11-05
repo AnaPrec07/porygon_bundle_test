@@ -1,0 +1,16 @@
+resources:
+  pipelines:
+    autoloader_ingestion_pipeline:
+      name: autoloader-pipeline        # mode: development adds the [dev user] prefix itself
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      serverless: true
+      channel: CURRENT
+
+      libraries:
+        - file:
+            path: ../src/ingest_raw_data.py
+
+      configuration:
+        bundle.landing_zone: ${var.landing_zone}
+        bundle.bronze_path: ${var.bronze_path}
