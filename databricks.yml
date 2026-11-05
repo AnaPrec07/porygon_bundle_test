@@ -26,6 +26,9 @@ variables:
   bronze_path:
     description: "S3 path where the bronze Delta table is written"
     default: "s3://porygon-bronze/"
+  export_path:
+    description: "S3 path where bronze_events is exported for sharing"
+    default: "s3://porygon-shared-exports"
 
 targets:
   dev:
@@ -41,6 +44,7 @@ targets:
       catalog: bundle_test
       schema: ${workspace.current_user.short_name}
       bronze_path: s3://porygon-bronze/dev
+      export_path: s3://porygon-shared-exports/dev
   prod:
     mode: production
     workspace:
@@ -51,6 +55,7 @@ targets:
       catalog: bundle_test
       schema: prod
       bronze_path: s3://porygon-bronze/prod
+      export_path: s3://porygon-shared-exports/prod
     permissions:
       - user_name: anamargaritapreciado@gmail.com
         level: CAN_MANAGE
