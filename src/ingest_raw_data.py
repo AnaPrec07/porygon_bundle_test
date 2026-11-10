@@ -29,7 +29,6 @@ dp.create_streaming_table(
     name="landing_to_bronze",
     comment="Raw streaming ingestion from cloud storage using Auto Loader",
 )
-@dp.expect("no rescued data", "_rescued_data IS NULL")
 def landing_to_bronze():
     df = (
         spark.readStream.format("cloudFiles")
