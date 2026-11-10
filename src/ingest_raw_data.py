@@ -1,8 +1,8 @@
 import re
 import unicodedata
 
-import dlt
-from pyspark.sql.functions import current_timestamp
+from pyspark import pipelines as dp
+from pyspark.sql import functions as F
 
 
 def clean_column(name: str) -> str:
@@ -15,23 +15,18 @@ def clean_column(name: str) -> str:
 
 # Values passed from the bundle at runtime
 landing_zone_path = spark.conf.get("bundle.landing_zone").rstrip("/")  # UC external volume
-catalog = spark.conf.get("bundle.catalog")
-schema = spark.conf.get("bundle.schema")
+bronze_table = f"{spark.conf.get('bundle.catalog')}.{spark.conf.get('bundle.schema')}.bronze_events"
 
-# Sink: writes the stream to a Unity Catalog table. Its files are stored in the
-# schema's managed location (the S3 bronze path).
-dlt.create_sink(
-    name="bronze_events_sink",
-    format="delta",
-    options={"tableName": f"{catalog}.{schema}.bronze_events"},
+# Target streaming table. The flow below appends into it.
+dp.create_streaming_table(
+    name=bronze_table,
+    comment="Raw CSV events ingested from the landing zone, all columns as strings",
 )
 
 
-@dlt.expect("no rescued data", "_rescued_data IS NULL")
-@dlt.expect("no corrupt records", "_corrupt_record IS NULL")
-@dlt.append_flow(
+@dp.append_flow(
+    target=bronze_table,
     name="landing_to_bronze",
-    target="bronze_events_sink",
     comment="Raw streaming ingestion from cloud storage using Auto Loader",
 )
 def landing_to_bronze():
@@ -40,15 +35,9 @@ def landing_to_bronze():
         .option("cloudFiles.format", "csv")  # Change to json, parquet, etc. depending on source
         .option("cloudFiles.schemaLocation", f"{landing_zone_path}/_schemas")
         .option("cloudFiles.useManagedFileEvents", "true")
-        .option("cloudFiles.inferColumnTypes", "true")  # Automatically infer types
-        .option(
-            "cloudFiles.schemaHints",
-            "cuenta STRING, tarjeta STRING, fecha_transaccion DATE, fecha_proceso DATE, "
-            "descripcion STRING, referencia STRING, categoria STRING, cargos_db DECIMAL(18,2)",
-        )
         .option("cloudFiles.cleanSource", "delete")
         .load(landing_zone_path)
     )
     # Delta rejects spaces, parentheses, etc. in column names, so normalize them
     df = df.toDF(*[clean_column(c) for c in df.columns])
-    return df.withColumn("ingestion_time", current_timestamp())
+    return df.withColumn("ingestion_time", F.current_timestamp())
