@@ -29,6 +29,8 @@ dp.create_streaming_table(
     name="landing_to_bronze",
     comment="Raw streaming ingestion from cloud storage using Auto Loader",
 )
+# todo: need to add expect
+# need to add checkpoint location.
 def landing_to_bronze():
     df = (
         spark.readStream.format("cloudFiles")
