@@ -17,21 +17,12 @@ def clean_column(name: str) -> str:
 landing_zone_path = spark.conf.get("bundle.landing_zone").rstrip("/")  # UC external volume
 bronze_table = f"{spark.conf.get('bundle.catalog')}.{spark.conf.get('bundle.schema')}.bronze_events"
 
-# Target streaming table. The flow below appends into it.
-dp.create_streaming_table(
+
+@dp.table(
     name=bronze_table,
     comment="Raw CSV events ingested from the landing zone, all columns as strings",
 )
-
-
-@dp.append_flow(
-    target=bronze_table,
-    name="landing_to_bronze",
-    comment="Raw streaming ingestion from cloud storage using Auto Loader",
-)
-# todo: need to add expect
-# need to add checkpoint location.
-def landing_to_bronze():
+def bronze_events():
     df = (
         spark.readStream.format("cloudFiles")
         .option("cloudFiles.format", "csv")  # Change to json, parquet, etc. depending on source
@@ -41,5 +32,14 @@ def landing_to_bronze():
         .load(landing_zone_path)
     )
     # Delta rejects spaces, parentheses, etc. in column names, so normalize them
-    df = df.toDF(*[clean_column(c) for c in df.columns])
+    cleaned = [clean_column(c) for c in df.columns]
+    # Ensure unique names: duplicate headers after normalization get _2, _3, ...
+    seen = {}
+    for i, name in enumerate(cleaned):
+        if name in seen:
+            seen[name] += 1
+            cleaned[i] = f"{name}_{seen[name]}"
+        else:
+            seen[name] = 1
+    df = df.toDF(*cleaned)
     return df.withColumn("ingestion_time", F.current_timestamp())
